@@ -1,0 +1,78 @@
+﻿var cfg = {};
+function popURL(model, conn, protocol, port, path) {
+    cfg.model = model;
+    cfg.conn = conn;
+    cfg.protocol = protocol;
+    cfg.port = port;
+    cfg.path = path;
+    $("#result").hide();
+    $("#error").hide();
+    $("#lblModel").html(model);
+    $("#lblConnection").html(conn);
+    $('#genURL').modal('show');
+
+}
+function GenerateURL() {
+    cfg.username = encodeURIComponent($("#txtCamUser").val());
+    cfg.password = encodeURIComponent($("#txtCamPass").val());
+    cfg.ip = $("#txtIPAddress").val().replace(/\//g, "");
+    if (!ValidateIPaddress(cfg.ip)) {
+        $("#error").html("Invalid IP address");
+        $("#error").show();
+        return;
+    }
+    cfg.channel = $("#txtChannel").val();
+    cfg.auth = "";
+    var url = cfg.protocol;
+    if (cfg.username !== "") {
+        url += cfg.username + ":" + cfg.password + "@";
+    }
+    url += cfg.ip;
+    if (cfg.port !== "" && cfg.port !== "0") {
+        url += ":" + cfg.port;
+    }
+    if (cfg.path.indexOf("/") !== 0)
+        url += "/";
+
+    url += cfg.path;
+    url = url.replace(/\[USERNAME\]/gi, cfg.username);
+    url = url.replace(/\[PASSWORD\]/gi, cfg.password);
+    url = url.replace(/\[CHANNEL\]/gi, cfg.channel);
+    url = url.replace(/\[WIDTH\]/gi, "320");
+    url = url.replace(/\[HEIGHT\]/gi, "240");
+
+    if (url.indexOf("[AUTH]") !== -1) {
+        var auth = btoa(cfg.username + ":" + cfg.password);
+        url = url.replace(/\[AUTH\]/gi, auth);
+    }
+
+    $("#result").html("<b id=\"camURL\">" + url + "</b><br/><input type=\"button\" value=\"Copy\" id=\"btnCopy\" onclick=\"CopyToClipboard()\"/>");
+    $("#result").show();
+    $("#error").hide();
+}
+function ValidateIPaddress(ipaddress) {
+    if (/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(ipaddress)) {
+        return true;
+    }
+    return false;
+}
+function CopyToClipboard() {
+    var c = document.querySelector('#camURL');
+    var range = document.createRange();
+    range.selectNode(c);
+    window.getSelection().addRange(range);
+
+    try {
+        // Now that we've selected the anchor text, execute the copy command  
+        if (document.execCommand('copy')) {
+            $("#btnCopy").val("Copied to Clipboard");
+            window.setTimeout(function () { $("#btnCopy").attr('value', 'Copy') }, 2000);
+        }
+    } catch (err) {
+        console.log('Oops, unable to copy');
+    }
+
+    // Remove the selections - NOTE: Should use
+    // removeRange(range) when it is supported  
+    window.getSelection().removeAllRanges();
+};

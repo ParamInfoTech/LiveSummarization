@@ -1,0 +1,39 @@
+$(document).ready(function() {
+// Create the dropdown nav for responsive
+selectnav('nav', {
+    label: '',
+    nested: true,
+    indent: '-'
+});
+
+selectnav('tocNav', {
+    label: '',
+    nested: true,
+    indent: '-'
+});
+
+//accordion	
+    $(".collapse").collapse();
+
+//Tabs - In such way needs to initiate each tab
+    $('#myTab a').click(function(e) {
+        e.preventDefault();
+        $(this).tab('show');
+    });
+
+});
+
+//video z-index
+$("iframe").each(function(){
+    var ifr_source = $(this).attr('src');
+    if (ifr_source != null) {
+        var wmode = "wmode=transparent";
+        if (ifr_source.indexOf('?') != -1) {
+            var getQString = ifr_source.split('?');
+            var oldString = getQString[1];
+            var newString = getQString[0];
+            $(this).attr('src', newString + '?' + wmode + '&' + oldString);
+        } else $(this).attr('src', ifr_source + '?' + wmode);
+    }
+});
+
